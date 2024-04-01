@@ -97,7 +97,7 @@ into four categories:
 3. Behavior;
 4. Foundation.
 
-// TODO IMAGE OF JETPACK
+![](/assets/Jetpack.png)
 
 ### Architecture Components
 
