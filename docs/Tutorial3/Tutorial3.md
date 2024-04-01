@@ -1,27 +1,7 @@
 # Tutorial 3 - PART 1
 
 > Goals
-
-## Introduction
-
-In the next two tutorials, we will develop a more complex application following patterns
-used in professional Android app development, and we will also cover Jetpack, which is
-a collection of libraries developed by Google that assist in application development and contain some of the patterns we will address.
-
-Follows a set of links that you should consult during the development of this work:
- * Android Jetpack: https://developer.android.com/jetpack
- * Clean Architecture - https://developer.android.com/topic/architecture
- * Android JetPack - LiveData: https://developer.android.com/topic/libraries/architecture/livedata
- * Android JetPack - Room: https://developer.android.com/training/data-storage/room
- * Android JetPack - ViewModel: https://developer.android.com/topic/libraries/architecture/viewmodel
- * Android JetPack - Data Binding : https://developer.android.com/topic/libraries/data-binding/
- * Android JetPack - Lifecycle: https://developer.android.com/topic/libraries/architecture/lifecycle
- * Android JetPack - Navigation: https://developer.android.com/guide/navigation
- * Android JetPack - Paging: https://developer.android.com/topic/libraries/architecture/paging/v3-overview
- * Android JetPack - WorkManager: https://developer.android.com/topic/libraries/architecture/workmanager
-
-
-## APP - POKEDEX
+# APP - POKEDEX
 
 The application we will implement is the Pokedex, which will have the following functionalities:
 1. List the regions of the Pokemon franchise.
@@ -40,7 +20,7 @@ The application we will implement is the Pokedex, which will have the following 
 
 
 
-# Let’s Start
+## Let’s Start
 
 In this tutorial, the focus will be mainly on the Presentation layer, although for testability,
 the base model of the application will be implemented, and fictitious (mock) data and
