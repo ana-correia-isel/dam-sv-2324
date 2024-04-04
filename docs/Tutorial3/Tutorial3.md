@@ -1,7 +1,7 @@
 # Tutorial 3 - PART 1
 
 ?> Review 1.1 - Add Pokemon List <br>
-Review 1.2 - Correct name in menu pokemon_regions
+Review 1.2 - Correct name in menu pokemon_regions, 
 
 
 > Goals
@@ -394,6 +394,27 @@ class RegionsActivity : BottomNavActivity() {
 
 Finally change the Android manifest to start in Regions Activity and run the aplication.
 
+#### Android Manifest
+
+```xml
+....
+ <activity
+            android:name=".ui.TeamsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.RegionsActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+.....
+```
 
 ### Second Challenge - Implement the Regions Activity using the following design.
 
