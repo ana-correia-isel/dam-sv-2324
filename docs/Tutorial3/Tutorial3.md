@@ -388,7 +388,7 @@ class RegionsActivity : BottomNavActivity() {
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?android:attr/windowBackground"
-    app:menu="@menu/bottomnavigation" />
+    app:menu="@menu/bottomnavmenu" />
 ```
 
 Finally change the Android manifest to start in Regions Activity and run the aplication.
