@@ -1,6 +1,11 @@
 # Tutorial 3 - PART 1
 
+?> Review 1.1 - Add Pokemon List
+
+
 > Goals
+>  Build a full aplication using Clean Architecture with MVVM
+> 
 # APP - POKEDEX
 
 The application we will implement is the Pokedex, which will have the following functionalities:
@@ -70,13 +75,9 @@ data class PokemonType(var id: Int,
 ```
 
 3. Pokemon: which will contain the base information of the pokemon - id, name,
-imageUrl, regions, types - Implement ourself
+imageUrl - Implement ourself
 4. PokemonDetail: which will contain the detailed information of the pokemon - id,
-pokemon, description, weight, height, stats, evolutions  - Implement ourself
-5. PokemonEvolution: which will contain the information of the pokemon Evolution
-chain - id, pokemon  - Implement ourself
-6. PokemonStats: which will contain the information of the pokemon ”powers” - id,
-hp, attack, defense, specialDefence, speed, experience  - Implement ourself
+pokemon, description, weight, height, types  - Implement ourself
 
 As one of the requirements of the application is to consume data using the POKEAPI,
 but we will only implement it in the next tutorial, it is necessary to use mock data to test
@@ -132,132 +133,102 @@ object MockData {
         PokemonType(18,"steel", R.drawable.steel, R.color.steel)
     )
 
-  /*  var pokemons = (1..POKEMONS_SIZE).map {
-        Pokemon(it,
-            "bulbasaur",
-            "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-                    "/sprites/pokemon/other/official-artwork/${it}.png",
-            regions.random(), pokemonTypeMock.asSequence().shuffled().take(2).toList()
-        )
-    }*/
+      /*var pokemons = (1..POKEMONS_SIZE).map {
+          Pokemon(it,
+              "bulbasaur",
+              "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
+                      "/sprites/pokemon/other/official-artwork/${it}.png",
+              regions.random(), pokemonTypeMock.asSequence().shuffled().take(2).toList()
+          )
+      }*/
 
-    /*var pokemons = listOf(
+   /* var pokemons = listOf(
         Pokemon(1,
             "bulbasaur",
             "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-                    "/sprites/pokemon/other/official-artwork/1.png",
-            regions[0], listOf(pokemonTypeMock[1], pokemonTypeMock[10])
+                    "/sprites/pokemon/other/official-artwork/1.png"
 
         ),
         Pokemon(4,
             "charmander",
             "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-                    "/sprites/pokemon/other/official-artwork/1.png",
-            regions[0], pokemonTypeMock.take(2)
+                    "/sprites/pokemon/other/official-artwork/1.png"
         ),
         Pokemon(6,
             "squirtle",
             "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
                     "/sprites/pokemon/other/official-artwork/7.png",
-            regions[0],
-            pokemonTypeMock.take(2)
         ),
         Pokemon(10,
             "caterpie",
             "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-                    "/sprites/pokemon/other/official-artwork/10.png",
-            regions[0],
-            pokemonTypeMock.take(2)),
+                    "/sprites/pokemon/other/official-artwork/10.png",),
         Pokemon(13,
             "weedle",
             "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-                    "/sprites/pokemon/other/official-artwork/13.png",
-            regions[0],
-            pokemonTypeMock.take(2)),
+                    "/sprites/pokemon/other/official-artwork/13.png"),
         Pokemon(16,
             "pidgey",
             "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-                    "/sprites/pokemon/other/official-artwork/16.png",
-            regions[0],
-            pokemonTypeMock.take(2)),
+                    "/sprites/pokemon/other/official-artwork/16.png"),
         Pokemon(19,
             "rattata",
             "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-                    "/sprites/pokemon/other/official-artwork/19.png",
-            regions[0],
-            pokemonTypeMock.take(2)),
+                    "/sprites/pokemon/other/official-artwork/19.png"),
         Pokemon(21,
             "spearow",
             "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-                    "/sprites/pokemon/other/official-artwork/21.png",
-            regions[0],
-            pokemonTypeMock.take(2)),
+                    "/sprites/pokemon/other/official-artwork/21.png"),
         Pokemon(23,
             "ekans",
             "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-                    "/sprites/pokemon/other/official-artwork/23.png",
-            regions[0],
-            pokemonTypeMock.take(2)),
+                    "/sprites/pokemon/other/official-artwork/23.png"),
         Pokemon(25,
             "pikachu",
             "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-                    "/sprites/pokemon/other/official-artwork/25.png",
-            regions[0],
-            pokemonTypeMock.take(2)),
+                    "/sprites/pokemon/other/official-artwork/25.png"),
         Pokemon(27,
             "sandshrew",
             "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-                    "/sprites/pokemon/other/official-artwork/27.png",
-            regions[0],
-            pokemonTypeMock.take(2)),
+                    "/sprites/pokemon/other/official-artwork/27.png"),
         Pokemon(29,
             "nidoran",
             "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-                    "/sprites/pokemon/other/official-artwork/29.png",
-            regions[0],
-            pokemonTypeMock.take(2)),
+                    "/sprites/pokemon/other/official-artwork/29.png"),
         Pokemon(35,
             "clefairy",
             "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-                    "/sprites/pokemon/other/official-artwork/35.png",
-            regions[0],
-            pokemonTypeMock.take(2)),
+                    "/sprites/pokemon/other/official-artwork/35.png"),
         Pokemon(37,
             "vulpix",
             "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-                    "/sprites/pokemon/other/official-artwork/37.png",
-            regions[0],
-            pokemonTypeMock.take(2)),
+                    "/sprites/pokemon/other/official-artwork/37.png"),
         Pokemon(39,
             "jigglypuff",
             "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-                    "/sprites/pokemon/other/official-artwork/39.png",
-            regions[0],
-            pokemonTypeMock.take(2)),
+                    "/sprites/pokemon/other/official-artwork/39.png"),
         Pokemon(41,
             "zubat",
             "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-                    "/sprites/pokemon/other/official-artwork/41.png",
-            regions[0],
-            pokemonTypeMock.take(2)),
+                    "/sprites/pokemon/other/official-artwork/41.png"),
 
 
         )*/
 
-  /*  var pokemonDetail = pokemons.map {
-        PokemonDetail(
-            it,
-            pokemonDetailDescription,
-            pokemonTypeMock.asSequence().shuffled().take(1).toList(),
-            ( Random.nextDouble(20.0,50.0) * 100.0).roundToInt() / 100.0,
-            (Random.nextDouble(0.20, 2.0) * 100.0).roundToInt() / 100.0,
-            PokemonStats(),
-            generateSequence {
-                PokemonEvolution(1, pokemons.random(), false,
-                    0,"", 0, "")
-            }.take(Random.nextInt(1,3)).toList()
-        )
-    }*/
+    /*  var pokemonDetail = pokemons.map {
+          PokemonDetail(
+              it,
+              pokemonDetailDescription,
+              pokemonTypeMock.asSequence().shuffled().take(1).toList(),
+              ( Random.nextDouble(20.0,50.0) * 100.0).roundToInt() / 100.0,
+              (Random.nextDouble(0.20, 2.0) * 100.0).roundToInt() / 100.0,
+              PokemonStats(),
+              generateSequence {
+                  PokemonEvolution(1, pokemons.random(), false,
+                      0,"", 0, "")
+              }.take(Random.nextInt(1,3)).toList()
+          )
+      }*/
 }
 ```
 
@@ -281,7 +252,7 @@ Guide on how to implement bottom navigation with activities in Android:
 
 * **Handle item selection**: Implement code to handle item selection events in your main activity. When a user selects a navigation option in the bottom navigation view, switch to the corresponding activity.
 
-### Code for Bottom Navigation
+##### Code for Bottom Navigation
 
 Create a menu folder using the steps that show the gif and create the xml file bottomnavmenu.xml.
 ![Create menu folder](https://ana-correia-isel.github.io/dam-sv-2324/Tutorial3/assets/create_menu.gif)
@@ -597,11 +568,221 @@ The getItemCount() method determines the total number of items in the pkRegionLi
 For the last, In the onViewCreated() method, on Region Activit, the RecyclerView adapter is set up using the RegionAdapter class, which takes a list of PokemonRegion objects and a context.
 
 ```kt
-override fun onCreate(savedInstanceState: Bundle?) {
+ override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         var listView = findViewById<RecyclerView>(R.id.regionsRecyclerView)
-        listView.adapter = RegionAdapter(pkRegionList = regions, context = this)
+        listView.adapter = RegionAdapter(pkRegionList = MockData.regions, context = this)
     }
 ```
 
+### Thrid Challenge - Implement the Pokemon List Activity using the following design.
+
+In this challenge, the objective is for the student to implement the Pokemon List Activity following the design presented at the beginning of the tutorial, and to incorporate the functionality such that upon clicking on a region, navigation to this activity occurs.
+
+
+?> **_NOTE:_** 
+
+#### item_pokemon.xml
+
+```xml
+ <?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relativeLayoutBackground"
+    android:layout_width="match_parent"
+    android:layout_height="170dp"
+    android:clickable="true"
+    android:clipToPadding="true"
+    android:focusable="true">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="6dp"
+        android:foreground="?attr/selectableItemBackground"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:cardBackgroundColor="@color/water">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:foreground="?attr/selectableItemBackground"
+            app:cardBackgroundColor="@color/white">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/pkImage"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_margin="20dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/pkID" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/pkName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="4dp"
+                android:gravity="center"
+                android:maxLines="1"
+                android:padding="12dp"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Charmander"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/pkID"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:alpha="0.25"
+                android:gravity="top"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="#4"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+</androidx.appcompat.widget.LinearLayoutCompat>
+```
+
+#### activity_pokemonlist.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    tools:context=".ui.RegionsActivity"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/pksRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="50dp"
+        android:clipToPadding="false"
+        android:fadeScrollbars="false"
+        android:padding="6dp"
+        android:scrollbarStyle="outsideOverlay"
+        android:scrollbars="vertical"
+        app:layoutManager="GridLayoutManager"
+        app:spanCount="2"
+        tools:listitem="@layout/item_pokemon"
+        tools:spanCount="2"
+        />
+
+</RelativeLayout>
+```
+
+#### PokemonAdapter 
+
+```kt
+class PokemonsAdapter(
+    private val pokemonList: List<Pokemon>,
+    private val context: Context
+) : RecyclerView.Adapter<PokemonsAdapter.ViewHolder>() {
+
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val cardView = itemView.findViewById<CardView>(R.id.cardView)
+        val pkImageView = itemView.findViewById<AppCompatImageView>(R.id.pkImage)
+        val pkNameTextView = itemView.findViewById<AppCompatTextView>(R.id.pkName)
+        val pkIDTextView = itemView.findViewById<AppCompatTextView>(R.id.pkID)
+    }
+
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val inflater = LayoutInflater.from(context)
+        val view = inflater.inflate(R.layout.item_pokemon, parent, false)
+        return ViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: PokemonsAdapter.ViewHolder, position: Int) {
+        val pokemon = pokemonList[position]
+        Glide.with(holder.pkImageView.context)
+            .asBitmap()
+            .load(pokemon.imageUrl)
+            .listener(object : RequestListener<Bitmap>
+            {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Bitmap>,
+                    isFirstResource: Boolean
+                ): Boolean {
+
+                    Log.d("TAG", e?.message.toString())
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Bitmap,
+                    model: Any,
+                    p2: Target<Bitmap>?,
+                    dataSource: DataSource,
+                    p4: Boolean
+                ): Boolean {
+                    Log.d("TAG", "OnResourceReady")
+                    if (resource != null) {
+                        val p: Palette = Palette.from(resource).generate()
+
+                        val rgb = p?.lightMutedSwatch?.rgb
+                        if (rgb != null) {
+                            holder.cardView.setCardBackgroundColor(rgb)
+                        }
+                    }
+                    return false
+                }
+            })
+            .into(holder.pkImageView)
+        holder.pkNameTextView.text = pokemon.name
+        holder.pkIDTextView.text = "#" + pokemon.id
+    }
+
+    override fun getItemCount(): Int {
+        return pokemonList.size
+    }
+}
+```
+
+?> **_NOTE:_** - Add in build.gradle.kts(Module:app) in dependencies - implementation("com.github.bumptech.glide:glide:4.16.0")
+<br> Add INTERNET permission on Android Manifest
+<br> Add PokemonList Activity on Android Manifest
+
+#### PokemonList Activity 
+
+```kt
+class PokemonListActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContentView(R.layout.activity_pokemonlist)
+        var listView = findViewById<RecyclerView>(R.id.pksRecyclerView)
+        listView.adapter = PokemonsAdapter(pokemonList = MockData.pokemons, context = this)
+    }
+}
+```
