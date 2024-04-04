@@ -698,7 +698,7 @@ In this challenge, the objective is for the student to implement the Pokemon Lis
 </RelativeLayout>
 ```
 
-#### PokemonAdapter 
+#### PokemonsAdapter 
 
 ```kt
 class PokemonsAdapter(
