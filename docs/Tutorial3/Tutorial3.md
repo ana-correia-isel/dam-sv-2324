@@ -366,10 +366,9 @@ class RegionsActivity : BottomNavActivity() {
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/navigation_pokedex"
+        android:id="@+id/navigation_regions"
         android:icon="@drawable/ic_regions"
-        android:title="@string/app_bottomtabbar_pokedex_title" />
-
+        android:title="@string/app_bottomtabbar_regions_title" />
     <item
         android:id="@+id/navigation_teams"
         android:icon="@drawable/ic_team"
