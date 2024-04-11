@@ -813,3 +813,18 @@ class PokemonListActivity : AppCompatActivity() {
 
 * Create Pokemon Detail Activity and create navigation between pokemon list and pokemon detail
 
+?> **_NOTE:_** - To pass custom objects arguments in navigation(Intent), they need to extends for Parcelable
+<br> Add build.gradle.kts(Module:app) in plugins -  id ("kotlin-parcelize")
+<br>In class Pokemon, PokemonType, PokemonRegion, add the annotation @kotlinx.parcelize.Parcelize and extends Parcelable
+<br>
+```kt
+@kotlinx.parcelize.Parcelize
+data class Pokemon(
+    var id: Int,
+    var name:String,
+    var imageUrl: String
+) : Parcelable
+```
+
+
+
