@@ -807,3 +807,9 @@ class PokemonListActivity : AppCompatActivity() {
     }
 }
 ```
+
+
+### Optional
+
+* Create Pokemon Detail Activity and create navigation between pokemon list and pokemon detail
+
