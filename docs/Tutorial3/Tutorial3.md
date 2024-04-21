@@ -1,4 +1,4 @@
-# Tutorial 3 - PART 1
+# Tutorial 3
 
 ?> Review 1.1 - Add Pokemon List <br>
 Review 1.2 - Correct name in menu pokemon_regions, 
