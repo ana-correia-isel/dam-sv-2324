@@ -637,3 +637,21 @@ The **response?.results?.map { ... }** maps the list of results from the API res
 ### Third Challenge - Start using API in PokemonListActivity and PokemonDetailActivity
 
 Obtains the list of Pokémon for the selected region and retrieves the selected Pokémon detail using the Pokedex API.
+
+
+## Data Layer (under constraction)
+
+The data layer is the place where the app needs to deal with API and third-party libraries.
+It contains Repositories — the single source of truth for the data, models, and data sources
+(which can be local or remote).
+In this layer we will create the data model, the database and the managers responsible
+for accessing the data using the Jetpack ROOM component(Figure 1).
+The ROOM Persistence Library is a part of the Android Jetpack, which is a set of
+Android libraries designed to help developers build high-quality apps more easily and
+efficiently. ROOM is a database abstraction layer that provides an easy-to-use interface
+to SQLite databases on Android.
+ROOM allows you to create, read, update, and delete data from a SQLite database
+using simple annotations on your data model classes. It also provides compile-time verification of SQL queries, which can help you catch errors early in the development process.
+ROOM also provides other features such as query optimization, LiveData support,
+and the ability to perform database operations on a separate thread, which can help you
+build responsive and efficient apps.
