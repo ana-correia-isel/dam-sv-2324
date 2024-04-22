@@ -11,7 +11,7 @@ Review 1.2 - Correct name in menu pokemon_regions,
 
 ## First Challenge - Data Binding
 
-**Data Binding** is a feature provided by Android Jetpack that allows you to bind UI components in your layout directly to data sources in your app’s code. This means you can avoid writing a lot of boilerplate code to update your UI components with data from your app.
+**[Data Binding](https://developer.android.com/topic/libraries/data-binding)** is a feature provided by Android Jetpack that allows you to bind UI components in your layout directly to data sources in your app’s code. This means you can avoid writing a lot of boilerplate code to update your UI components with data from your app.
 
 To enable the usage of view models in your Android application, add the following
 snippet to the app/build.gradle file.
@@ -227,7 +227,38 @@ class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
 ```
 
+And for last, we need to change the BottomNavActivity and RegionActivity
 
+```kotlin BottomNavActivity
+abstract class BottomNavActivity : AppCompatActivity() {
+    lateinit var navigationView: BottomNavigationView
+    lateinit var binding : ViewBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        this.binding = DataBindingUtil.setContentView(this, contentViewId)
+
+     ....
+    }
+.....
+}
+
+```
+
+```kotlin RegionActivity
+...
+
+
+override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val regionBinding = binding as ActivityRegionsBinding
+        var listView = regionBinding.regionsRecyclerView
+
+...
+
+```
 
 Test the Region Activity.
 
