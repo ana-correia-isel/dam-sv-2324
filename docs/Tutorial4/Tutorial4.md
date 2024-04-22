@@ -35,13 +35,45 @@ android {
 
 
 Once you’ve enabled **Data Binding**, you can start using it in your layout files by
-enclosing your layout in a <layout> tag. Within the <layout> tag, you can use the @syntax
-to bind data to UI components. For example in Region item Layout, you can bind a
+enclosing your layout in a "**layout**" tag. Within the "**layout**" tag, you can use the @syntax
+to bind data to UI components. Don't forget that for Data Binding to work, it's always necessary to include the **< layout ></ layout >** tag in the XML, as shown in activity_regions.xml and item_region.xml. For example in Region item Layout, you can bind a
 string to a regionNameTextView and regionIdTextView like this:
 
-```xml 
+```xml activity_regions.xml
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.RegionsActivity"
+    android:orientation="vertical">
 
-```xml
+<RelativeLayout
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/regionsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="95dp"
+        app:layoutManager="LinearLayoutManager"
+        tools:listitem="@layout/item_region" />
+
+    <include
+        android:id="@+id/navigation"
+        layout="@layout/bottomnavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+
+</RelativeLayout>
+</layout>
+
+```
+
+```xml item_region.xml
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -225,6 +257,13 @@ android {
     }
 }
 
+dependencies {
+ ...
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation("androidx.activity:activity-ktx:1.8.2")
+..
+}
+
 ```
 
 #### Create Region View Model
@@ -309,15 +348,7 @@ I'll leave the data binding functions to load the pokemon image and the pokemon 
 
 ```kotlin
 
-     @JvmStatic
-    @BindingAdapter("app:backgroundTint")
-    fun bindBackgroundColor(view: MaterialButton, resource: Int)
-    {
-        view.background.setTint(ContextCompat.getColor(view.context,resource))
-    }
-
-
-     @JvmStatic
+    @JvmStatic
     @BindingAdapter("paletteImage", "paletteView")
     fun bindLoadImagePaletteView(view: AppCompatImageView, url: String, paletteView: View) {
         val context = view.context
@@ -381,18 +412,228 @@ I'll leave the data binding functions to load the pokemon image and the pokemon 
     }
 ```
 
+``` item_pokemon.xml
+
+...
+
+ <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/pkImage"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_margin="20dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                app:paletteCard="@{cardView}"
+                app:paletteImage="@{pokemon.imageUrl}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/pkID" />
+
+...
+
+```
+
+
+
 ## Network Layer
 
 Create a package named network within the model package. Then, create another package
 named responses inside the previously created package.
-We will be using the Retrofit library, which is widely used in Android development for
+We will be using the [Retrofit](https://square.github.io/retrofit/) library, which is widely used in Android development for
 networking purposes. It is specifically designed to simplify network requests and handle
 API integrations. Retrofit is built on top of OkHttp, another popular HTTP client library,
 and offers a higher-level, declarative interface for making network calls.
+
+We are going to use the [Pokedex API](https://pokeapi.co/) ([DOC](https://pokeapi.co/docs/v2#games-section)). 
+The endpoints we are going to use are the following (all of them are GET):
+* region
+* generation/{id}
+* pokemon/{id}
+* type
 
 1. **Setup**: To utilize Retrofit in your Android project, you need to include the necessary
 dependencies in your project’s build.gradle file.
 
 ```xml 
 
+dependencies {
+
+    ....
+
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-moshi:2.11.0")
+    implementation("com.squareup.moshi:moshi:1.15.1")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    kapt("com.squareup.moshi:moshi-kotlin-codegen:1.15.1")
+}
+
 ```
+
+2. **API Interface**: Create an interface that outlines the API endpoints along
+with their corresponding HTTP methods. You can specify the request types (GET,
+POST, PUT, DELETE), and include path parameters, query parameters, headers,
+and request bodies. In this case, we will define the endpoints required to retrieve
+data via PokeAPI
+
+```kotlin
+
+interface PokemonApi
+{
+    @GET("region")
+    suspend fun fetchRegionList(): PokemonListBaseResponse<PokemonRegionsResponse>
+
+    @GET("generation/{id}")
+    suspend fun fetchPokemonByRegionId(@Path("id") id:Int): PokemonByRegionResponse
+
+   /* @GET("pokemon/{id}")
+    suspend fun fetchPokemonDetailById(@Path("id") id:Int): PokemonDetailResponse
+
+    @GET("type")
+    suspend fun fetchPokemonTypes(): PokemonListBaseResponse<PokemonGenericResponse>
+*/
+}
+
+```
+
+Let’s go through the code and understand each API endpoint:
+
+* **fetchRegionList:**
+  1. HTTP method: GET 
+  2. Endpoint: ”region” 
+  3. Response type: PokemonListBaseResponse<PokemonRegionsResponse>,  where *PokemonRegionsResponse* represents the response containing a list of regions.
+* **fetchPokemonByRegionId:**
+  1. HTTP method: GET 
+  2. Endpoint: ”generation/id” id is a path parameter representing the ID of a specific region/generation. 
+  3. Parameters: id: The ID of the region/generation to fetch Pokemon for.
+  4. Response type: PokemonByRegionResponse - Represents the response containing Pokemon data specific to a region/generation.
+* **fetchPokemonDetailById:**
+  1. HTTP method: GET 
+  2. Endpoint: ”pokemon/id” id is a path parameter representing the ID of a specific Pokemon. 
+  3. Parameters: id - The ID of the Pokemon to fetch details for.
+  4. Response type: PokemonDetailResponse Represents the response containing detailed information about a specific Pokemon.
+* **fetchPokemonTypes:**
+  1. HTTP method: GET 
+  2. Endpoint: ”type” 
+  3. Response type - PokemonListBaseResponse<PokemonGenericResponse>, Represents the response containing a list of Pokemon types.
+
+3. Define API Responses:
+
+
+```kotlin 
+@JsonClass(generateAdapter = true)
+data class PokemonListBaseResponse<T>(
+    @field:Json(name = "count") val count: Int?,
+    @field:Json(name = "next") val next: String?,
+    @field:Json(name = "previous") val previous: String?,
+    @field:Json(name = "results") val results: List<T>?
+)
+
+@JsonClass(generateAdapter = true)
+data class PokemonRegionsResponse(
+    @field:Json(name = "name") val name: String?,
+    @field:Json(name = "url") val url: String?
+)
+
+@JsonClass(generateAdapter = true)
+data class PokemonByRegionResponse(
+    @field:Json(name = "pokemon_species") val pokemons: List<PokemonResponse>,
+)
+
+@JsonClass(generateAdapter = true)
+data class PokemonResponse(
+    @field:Json(name = "id") val id: Int?,
+    @field:Json(name = "url") val url: String?,
+    @field:Json(name = "name") val name: String?,
+) {}
+```
+Implement yourself the responses: PokemonGenericResponse, PokemonDetailResponse
+
+4. **Create Retrofit Instance:** Construct a Retrofit instance using the Retrofit.Builder
+class. Specify the base URL of the API and include any required converters or
+interceptors. For this purpose, we will create a file named ”NetworkModule” with
+the following Retrofit initialization code.
+
+```kotlin 
+
+internal class HttpRequestInterceptor : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val originalRequest = chain.request()
+        val request = originalRequest.newBuilder().url(originalRequest.url).build()
+        Log.d("Pokemon-API-Request",request.toString())
+        return chain.proceed(request)
+    }
+}
+
+internal object NetworkModule
+{
+    private val _client = initPokemonRemoteService()
+    val client: PokemonApi
+        get() = _client
+
+    fun provideOkHttpClient(): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(HttpRequestInterceptor())
+            .build()
+    }
+
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .client(okHttpClient)
+            .baseUrl("https://pokeapi.co/api/v2/")
+            .addConverterFactory(MoshiConverterFactory.create())
+            .build()
+    }
+
+
+    fun providePokedexService(retrofit: Retrofit): PokemonApi {
+        return retrofit.create(PokemonApi::class.java)
+    }
+
+    fun initPokemonRemoteService() : PokemonApi
+    {
+        val okHttpClient = provideOkHttpClient()
+        val retrofit = provideRetrofit(okHttpClient)
+        val pokemonApi = providePokedexService(retrofit)
+        return pokemonApi
+    }
+}
+
+```
+
+5. **ViewModels:** In the ViewModels, use the apiClient to fetch the data to display in the UI.
+
+```kotlin
+
+fun fetchRegions() {
+
+        viewModelScope.launch(Dispatchers.Default) {
+            val response = NetworkModule.client.fetchRegionList()
+
+            val regionsList = response?.results?.map {
+                val regexToGetId = "\\/([^\\/]+)\\/?\$".toRegex()
+
+                var regionId = regexToGetId.find(it.url!!)?.value
+                regionId = regionId?.removeSurrounding("/")
+                PokemonRegion(regionId?.toInt() ?: 0, it.name.toString())
+            }
+
+            _regions.postValue(regionsList)
+        }
+    }
+
+```
+
+The **viewModelScope.launch(Dispatchers.Default) { ... }** launches a new coroutine within the scope of the ViewModel. It uses the Dispatchers.Default dispatcher, which is suitable for CPU-bound tasks.
+The **NetworkModule.client.fetchRegionList()** makes a network request to fetch the list of regions from the API. The response is stored in the response variable.
+The **response?.results?.map { ... }** maps the list of results from the API response to a list of PokemonRegion objects. Each result is transformed into a PokemonRegion object, which contains an ID and a name. The map function returns a list of PokemonRegion objects.
+* val regexToGetId = "\\/([^\\/]+)\\/?\$".toRegex() defines a regular expression pattern to extract the ID from the URL of each region. The regex pattern matches the last part of the URL, which represents the ID of the region.
+* val regionId = regexToGetId.find(it.url!!)?.value extracts the ID from the URL of each region using the regular expression pattern.
+* _regions.postValue(regionsList) updates the _regions LiveData with the list of PokemonRegion objects. The postValue function is used because the code is running on a background thread.
+
+### Third Challenge - Start using API in PokemonListActivity and PokemonDetailActivity
+
+Obtains the list of Pokémon for the selected region and retrieves the selected Pokémon detail using the Pokedex API.
