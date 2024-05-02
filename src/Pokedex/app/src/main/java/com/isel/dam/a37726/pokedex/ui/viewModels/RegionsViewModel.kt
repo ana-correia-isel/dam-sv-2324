@@ -22,7 +22,6 @@ class RegionsViewModel : ViewModel() {
     fun fetchRegions() {
 
         //_regions.value = MockData.regions
-
         viewModelScope.launch(Dispatchers.Default) {
             val response = NetworkModule.client.fetchRegionList()
 
