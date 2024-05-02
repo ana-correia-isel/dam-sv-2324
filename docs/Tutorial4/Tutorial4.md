@@ -381,8 +381,7 @@ I'll leave the data binding functions to load the pokemon image and the pokemon 
 
     @JvmStatic
     @BindingAdapter("paletteImage", "paletteView")
-    fun bindLoadImagePaletteView(view: AppCompatImageView, url: String, paletteView: View) {
-        val context = view.context
+    fun bindLoadImagePalette(view: AppCompatImageView, url: String, paletteView: MaterialCardView) {
         Glide.with(view.context)
             .asBitmap()
             .load(url)
@@ -407,33 +406,12 @@ I'll leave the data binding functions to load the pokemon image and the pokemon 
                     p4: Boolean
                 ): Boolean {
                     Log.d("TAG", "OnResourceReady")
-
                     if (resource != null) {
                         val p: Palette = Palette.from(resource).generate()
 
                         val rgb = p?.lightMutedSwatch?.rgb
-
-                        val light = p?.lightVibrantSwatch?.rgb
-                        val domain = p?.dominantSwatch?.rgb
-
-                        if (domain != null) {
-                            if (light != null) {
-
-                                val gfgGradient = GradientDrawable(
-                                    GradientDrawable.Orientation.TOP_BOTTOM,
-                                    intArrayOf(
-                                        domain,
-                                        light
-                                    ))
-
-                                paletteView.background = gfgGradient
-                            } else {
-                                if (rgb != null) {
-                                    paletteView.setBackgroundColor(rgb)
-
-                                }
-                            }
-
+                        if (rgb != null) {
+                            paletteCard.setCardBackgroundColor(rgb)
                         }
                     }
                     return false
@@ -441,6 +419,7 @@ I'll leave the data binding functions to load the pokemon image and the pokemon 
             })
             .into(view)
     }
+
 ```
 
 ``` item_pokemon.xml
