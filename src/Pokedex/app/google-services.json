@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "662072289011",
+    "project_id": "test-dam-3e243",
+    "storage_bucket": "test-dam-3e243.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:662072289011:android:5185ec8d87364de961b986",
+        "android_client_info": {
+          "package_name": "com.isel.dam.a37726.pokedex"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "662072289011-a72pk9fuct4mqehae97th3a9uo97atm1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9Ae9Y5cJYeyqrVaSKBkJFUCokzFxiMzw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "662072289011-a72pk9fuct4mqehae97th3a9uo97atm1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

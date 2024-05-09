@@ -1046,3 +1046,5 @@ class PokemonListViewModel : ViewModel() {
 ....
 ```
 
+
+## Opcional - Firebase
