@@ -649,7 +649,7 @@ The **response?.results?.map { ... }** maps the list of results from the API res
 Obtains the list of Pokémon for the selected region and retrieves the selected Pokémon detail using the Pokedex API.
 
 
-## Data Layer (under constraction)
+## Data Layer
 
 The data layer is the place where the app needs to deal with API and third-party libraries.
 It contains Repositories — the single source of truth for the data, models, and data sources
