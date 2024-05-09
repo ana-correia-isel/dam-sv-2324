@@ -8,6 +8,8 @@ import com.isel.dam.a37726.pokedex.model.data.Pokemon
 import com.isel.dam.a37726.pokedex.model.data.PokemonRegion
 import com.isel.dam.a37726.pokedex.model.mock.MockData
 import com.isel.dam.a37726.pokedex.model.network.NetworkModule
+import com.isel.dam.a37726.pokedex.model.repositories.PokemonRepository
+import com.isel.dam.a37726.pokedex.model.repositories.RegionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -16,28 +18,15 @@ class PokemonListViewModel : ViewModel() {
     val pokemons: LiveData<List<Pokemon>?>
         get() = _pokemons
 
+    private lateinit var _repository: PokemonRepository
+    fun initViewMode(repository: PokemonRepository) {
+        _repository = repository
+    }
+
     fun fetchPokemons(region: PokemonRegion) {
         viewModelScope.launch(Dispatchers.Default) {
-            val response = NetworkModule.client.fetchPokemonByRegionId(region.id)
-
-            "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-                    "/sprites/pokemon/other/official-artwork/1.png"
-
-            val pkList = response.pokemons.map {
-
-                val regexToGetId = "\\/([^\\/]+)\\/?\$".toRegex()
-                var pkId = regexToGetId.find(it.url!!)?.value
-                pkId = pkId?.removeSurrounding("/")
-                val pkName = it.name ?: ""
-                val pkIdInt = pkId?.toInt() ?: 0
-
-                val pkImageUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master" +
-                        "/sprites/pokemon/other/official-artwork/${pkId}.png"
-
-
-                Pokemon(pkIdInt, pkName, pkImageUrl)
-            }
-            _pokemons.postValue(pkList)
+           val pkList = _repository.getPokemonsByRegion(region)
+            _pokemons.postValue(pkList.value)
         }
     }
 }

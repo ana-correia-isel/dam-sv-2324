@@ -665,3 +665,384 @@ using simple annotations on your data model classes. It also provides compile-ti
 ROOM also provides other features such as query optimization, LiveData support,
 and the ability to perform database operations on a separate thread, which can help you
 build responsive and efficient apps.
+
+![alt text](image.png)
+
+### Dependencies
+First, let’s add the libraries that will be used in this layer. In the file build.gradle, in the
+tag ”dependencies” it adds the following libraries:
+
+```xml 
+...
+def room_version = ’2.4.2’
+implementation "androidx.room:room-runtime:$room_version"
+kapt "androidx.room:room-compiler:$room_version"
+...
+
+```
+
+### Using ROOM Database
+To use persistence, you need to implement three major components from Room:
+1. Entity: A model class that represents a table in a Room database.
+2. Data Access Object (DAO): A helper class to access and query the database.
+3. Database: An abstract class that directly extends RoomDatabase. It’s main responsibility is creating the database and exposing entities through Data Access
+Objects (DAO).
+
+#### Entities - PokemonRegion
+
+```kotlin PokemonRegion.kt
+@kotlinx.parcelize.Parcelize
+@Entity(tableName = "pokemon_region")
+data class PokemonRegion(
+    @PrimaryKey
+    @ColumnInfo(name = "region_id")
+    var id: Int,
+    @ColumnInfo(name = "region_name")
+    var name: String
+): Parcelable
+
+```
+
+Here, you’re using annotations from Room:
+1. @Entity: Declares that you’re going to use this model as an Entity.
+2. @PrimaryKey: Defines id as the Primary Key for the Entity.
+3. @ColumnInfo: Allows specific customization about the column associated with this
+field.
+
+#### Creating a Data Access Object (DAO) - Pokemon Region
+
+A DAO is basically an interface to access required data from your database. It has two
+sole purposes:
+1. It saves you from writing direct queries, which are more error-prone and harder to
+debug.
+2. It isolates query logic from database creation and migration code for better manageability.
+
+```kotlin PokemonDao.kt
+
+@Dao
+interface PokemonRegionDao {
+    @Query("SELECT * FROM pokemon_region")
+    fun getRegions() : List<PokemonRegion>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertRegion(region: PokemonRegion)
+    @Query("SELECT COUNT(*) FROM pokemon_region")
+    fun count(): Int
+}
+
+```
+
+That’s pretty straight forward! Similar to the @Entity annotation, here, you use @Dao
+on top of the interface to declare it as a DAO for your Room database.
+Querying is fairly simple in Room. Reviewing the methods in RegionDao one by one:
+1. getRegions: returns a list of Region.
+2. insertRegion: Insert a new Region.
+3. count: returns number of regions that exist in database
+
+#### Creating the Database
+
+Now, you need to implement the third and most central component: the Database class.
+In order to do that, create a new file PokemonDatabase and add following code:
+
+```kotlin
+
+@Database( entities = [PokemonRegion::class], version = 1, exportSchema = false )
+abstract class PokemonDatabase : RoomDatabase() {
+    abstract fun regionDao (): PokemonRegionDao
+    companion object {
+        // For Singleton instantiation
+        @Volatile private var instance : PokemonDatabase ? = null
+        fun getInstance ( context : Context): PokemonDatabase {
+            if ( instance != null ) return instance !!
+            synchronized ( this ) {
+                instance = Room
+                    .databaseBuilder ( context , PokemonDatabase :: class.java , "pokedex_dabase" )
+                    .fallbackToDestructiveMigration ()
+                    .build ()
+            }
+            return instance!!
+        }
+    }
+}
+
+```
+
+Take a moment to understand each segment:
+1. Similar to before, with the @Database annotation, you’ve declared PokemonDatabase as your Database class, which extends the abstract class RoomDatabase. By
+using entities = [PokemonRegion::class] along with the annotation, you’ve defined the
+list of Entities for this database. Version = 1 is the version number for your database.
+1. You’ve created a companion object in this class for static access and an INSTANCE
+variable of its own type. This INSTANCE will be used as a Singleton object for
+your database throughout the app.
+1. The getInstance(context: Context) function returns the same INSTANCE of PokemonDatabase whenever it needs to be accessed in your app. It also ensures thread
+safety and prevents creating a new database every time you try to access it.
+
+
+#### Creating Repository - Pokemon Region Repository
+
+Now, it’s time to create RegionRepository so that it can interact with PokemonDatabase.
+
+```kotlin RegionRepository.kt
+
+class RegionRepository(private val pokemonApi: PokemonApi,
+                       private val regionDao: PokemonRegionDao
+)
+{
+    suspend fun getRegions() : LiveData<List<PokemonRegion>>
+    {
+        val hasRegions = regionDao.count()
+        if(hasRegions > 0)
+        {
+            val regions = regionDao.getRegions()
+            return MutableLiveData(regions)
+        }
+        try {
+            val regionsResponse = pokemonApi.fetchRegionList()
+            val regions = regionsResponse.results?.map {
+                val regexToGetId = "/([^/]+)/?\$".toRegex()
+                var regionId = regexToGetId.find(it.url!!)?.value
+                regionId = regionId?.removeSurrounding("/")
+                PokemonRegion(regionId?.toInt() ?: 0, it.name.toString())
+
+            }
+            regions?.forEach {
+                regionDao.insertRegion(it) }
+            return MutableLiveData(regions)
+        }catch (e: java.lang.Exception)
+        {
+            Log.e("ERROR", e.toString())
+        }
+        return MutableLiveData()
+    }
+}
+
+```
+
+
+They are responsible for obtaining data either via the database or by using the REST
+API. In other words, if the desired data does not exist in the database, the repository will
+use the PokeAPI service to retrieve it and then store it in the database.
+
+### BD Instance - DBModule
+
+The class DBModule that encapsulates the functionalities related to database operations and network communication. 
+The class has three properties: pokemonClient, regionRepository, and pokemonDBManager.
+It has a companion object with a method getInstance that ensures only one instance of DBModule is created (Singleton pattern).
+In the init block, it initializes pokemonClient to communicate with a Pokémon API, pokemonDBManager to manage local database operations, and regionRepository to handle Pokémon region data.
+
+
+```kotlin 
+
+class DBModule(private val context:Context) {
+
+    val pokemonClient: PokemonApi
+
+    val regionRepository : RegionRepository
+
+    val pokemonDBManager : PokemonDatabase
+
+    companion object {
+        // For Singleton instantiation
+        @Volatile private var instance : DBModule ? = null
+        fun getInstance (context : Context): DBModule {
+            if ( instance != null ) return instance !!
+            synchronized ( this ) {
+                return DBModule(context)
+            }
+            return instance!!
+        }
+    }
+
+    init {
+        pokemonClient = NetworkModule.initPokemonRemoteService()
+        pokemonDBManager = PokemonDatabase.getInstance(context)
+        regionRepository = RegionRepository(pokemonClient,pokemonDBManager.regionDao())
+    }
+}
+```
+
+#### Changes in ViewModels
+
+Now, to fetch all regions, we'll use the RegionRepository. However, to obtain the repository, the app's context is required. As a good practice, it's not advisable to pass the Android context to ViewModels directly. Therefore, a function named initViewMode was created, which will pass the repository into the ViewModel.
+
+```kotlin RegionsViewModel.kt
+class RegionsViewModel : ViewModel() {
+    private val _regions = MutableLiveData<List<PokemonRegion>?>()
+    val regions: LiveData<List<PokemonRegion>?>
+        get() = _regions
+
+    private lateinit var _repository: RegionRepository
+    fun initViewMode(repository: RegionRepository) {
+        _repository = repository
+    }
+    fun fetchRegions() {
+
+        //_regions.value = MockData.regions
+        viewModelScope.launch(Dispatchers.Default) {
+            val regionsList = _repository.getRegions()
+            _regions.postValue(regionsList.value)
+        }
+    }
+}
+```
+#### Changes in Regions Activity
+
+```kotlin RegionsActivity.kt
+
+override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val regionBinding = binding as ActivityRegionsBinding
+        var listView = regionBinding.regionsRecyclerView
+
+        viewModel.initViewMode(DBModule.getInstance(this).regionRepository)
+....
+```
+
+With these changes, the app will only fetch the regions from the API if they do not exist in the database.
+
+## Four Challenge - Add the Pokémon List to the database and only fetch Pokémon from the API if they do not exist in the database.
+
+> Note
+> You need to change Pokemon object to create a relationship with Pokemon region
+
+```kotlin Pokemon.kt
+@kotlinx.parcelize.Parcelize
+@Entity(tableName = "pokemon")
+data class Pokemon(
+    @PrimaryKey
+    @ColumnInfo(name = "pokemon_id")
+    var id: Int,
+
+    @ColumnInfo(name = "pokemon_name")
+    var name:String,
+
+    @ColumnInfo(name = "pokemon_imgUrl")
+    var imageUrl: String,
+
+    @ColumnInfo(name = "region_id")
+    var regionId: Int? = null
+) : Parcelable
+```
+
+RegionWithPokemons that represents a relationship between a Pokémon region (region) and a list of Pokémon (pokemon) associated with that region.
+
+```kotlin
+data class RegionWithPokemons(
+    @Embedded
+    val region: PokemonRegion,
+
+    @Relation(
+        parentColumn = "region_id",
+        entityColumn = "region_id"
+    )
+    val pokemon: List<Pokemon>
+)
+```
+
+* @Embedded: This annotation is used to indicate that the region property of type PokemonRegion should be embedded into the RegionWithPokemons class. It means that the properties of PokemonRegion will be directly accessible from RegionWithPokemons.
+* @Relation: This annotation is used to define a relationship between two entities. In this case, it specifies that there is a relationship between PokemonRegion and Pokemon, where Pokemon is associated with PokemonRegion through the region_id field.  
+  * parentColumn = "region_id": This specifies the column in the parent entity (PokemonRegion) that is used to establish the relationship.
+  * entityColumn = "region_id": This specifies the column in the associated entity (Pokemon) that corresponds to the region_id in the parent entity.
+* val pokemon: List<Pokemon>: This property represents a list of Pokemon entities associated with the PokemonRegion. The @Relation annotation ensures that when you retrieve a RegionWithPokemons object, Room automatically fetches the associated Pokemon entities from the database based on the specified relationship.
+
+
+#### Pokemon Dao and changes in PokemonDatabase
+
+```kotlin PokemonDao.kt
+
+@Dao
+interface PokemonDao {
+    @Query("SELECT * FROM pokemon")
+    fun getPokemons() : List<Pokemon>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertPokemon(pokemon: Pokemon)
+    @Query("SELECT COUNT(*) FROM pokemon")
+    fun count(): Int
+
+    @Transaction
+    @Query("SELECT * FROM pokemon_region WHERE region_id = :regionId")
+    fun getPokemonByRegion(regionId: Int): RegionWithPokemons
+}
+
+```
+
+```kotlin PokemonDatabase.kt
+
+@Database( entities = [PokemonRegion::class, Pokemon:: class], version = 3, exportSchema = false )
+abstract class PokemonDatabase : RoomDatabase() {
+    abstract fun regionDao (): PokemonRegionDao
+
+    abstract fun pokemonDao (): PokemonDao
+....
+```
+
+#### Changes in DBModule
+
+```kotlin DBModule.kt
+
+class DBModule(private val context:Context) {
+
+    val pokemonClient: PokemonApi
+
+    val regionRepository : RegionRepository
+
+    val pokemonDBManager : PokemonDatabase
+
+    var pokemonRepository: PokemonRepository
+
+    companion object {
+        // For Singleton instantiation
+        @Volatile private var instance : DBModule ? = null
+        fun getInstance (context : Context): DBModule {
+            if ( instance != null ) return instance !!
+            synchronized ( this ) {
+                return DBModule(context)
+            }
+            return instance!!
+        }
+    }
+
+    init {
+        pokemonClient = NetworkModule.initPokemonRemoteService()
+        pokemonDBManager = PokemonDatabase.getInstance(context)
+        regionRepository = RegionRepository(pokemonClient,pokemonDBManager.regionDao())
+        pokemonRepository = PokemonRepository(pokemonClient,pokemonDBManager.pokemonDao())
+    }
+}
+
+```
+
+#### Changes in PokemonListViewModel and PokemonListActivity
+
+```kotlin PokemonListViewModel.kt
+
+class PokemonListViewModel : ViewModel() {
+    private val _pokemons = MutableLiveData<List<Pokemon>?>()
+    val pokemons: LiveData<List<Pokemon>?>
+        get() = _pokemons
+
+    private lateinit var _repository: PokemonRepository
+    fun initViewMode(repository: PokemonRepository) {
+        _repository = repository
+    }
+
+    fun fetchPokemons(region: PokemonRegion) {
+        viewModelScope.launch(Dispatchers.Default) {
+           val pkList = _repository.getPokemonsByRegion(region)
+            _pokemons.postValue(pkList.value)
+        }
+    }
+}
+```
+
+
+```kotlin PokemonListActivity.kt
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+....
+        viewModel.initViewMode(DBModule.getInstance(this).pokemonRepository)
+
+....
+```
+

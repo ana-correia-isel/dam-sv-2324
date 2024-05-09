@@ -10,6 +10,7 @@ import com.isel.dam.a37726.pokedex.model.data.PokemonDetail
 import com.isel.dam.a37726.pokedex.model.data.PokemonRegion
 import com.isel.dam.a37726.pokedex.model.mock.MockData
 import com.isel.dam.a37726.pokedex.model.network.NetworkModule
+import com.isel.dam.a37726.pokedex.model.repositories.RegionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -19,21 +20,17 @@ class RegionsViewModel : ViewModel() {
     val regions: LiveData<List<PokemonRegion>?>
         get() = _regions
 
+    private lateinit var _repository: RegionRepository
+    fun initViewMode(repository: RegionRepository) {
+        _repository = repository
+    }
     fun fetchRegions() {
 
         //_regions.value = MockData.regions
         viewModelScope.launch(Dispatchers.Default) {
-            val response = NetworkModule.client.fetchRegionList()
-
-            val regionsList = response?.results?.map {
-                val regexToGetId = "\\/([^\\/]+)\\/?\$".toRegex()
-
-                var regionId = regexToGetId.find(it.url!!)?.value
-                regionId = regionId?.removeSurrounding("/")
-                PokemonRegion(regionId?.toInt() ?: 0, it.name.toString())
-            }
-
-            _regions.postValue(regionsList)
+            val regionsList = _repository.getRegions()
+            _regions.postValue(regionsList.value)
         }
     }
 }
+

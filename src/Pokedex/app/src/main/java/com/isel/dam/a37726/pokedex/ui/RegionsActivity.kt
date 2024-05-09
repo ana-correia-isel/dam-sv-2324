@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.isel.dam.a37726.pokedex.R
 import com.isel.dam.a37726.pokedex.databinding.ActivityRegionsBinding
 import com.isel.dam.a37726.pokedex.model.data.PokemonRegion
+import com.isel.dam.a37726.pokedex.model.database.DBModule
 import com.isel.dam.a37726.pokedex.model.mock.MockData
 import com.isel.dam.a37726.pokedex.ui.Adapters.RegionAdapter
 import com.isel.dam.a37726.pokedex.ui.viewModels.RegionsViewModel
@@ -20,6 +21,8 @@ class RegionsActivity : BottomNavActivity() {
 
         val regionBinding = binding as ActivityRegionsBinding
         var listView = regionBinding.regionsRecyclerView
+
+        viewModel.initViewMode(DBModule.getInstance(this).regionRepository)
 
         viewModel.regions.observe(this) {
             listView.adapter = it?.let { it1 ->

@@ -1,6 +1,7 @@
 package com.isel.dam.a37726.pokedex.model.network
 
 import com.isel.dam.a37726.pokedex.model.network.responses.PokemonByRegionResponse
+import com.isel.dam.a37726.pokedex.model.network.responses.PokemonGenericResponse
 import com.isel.dam.a37726.pokedex.model.network.responses.PokemonListBaseResponse
 import com.isel.dam.a37726.pokedex.model.network.responses.PokemonRegionsResponse
 import retrofit2.http.GET
@@ -14,6 +15,9 @@ interface PokemonApi
 
     @GET("generation/{id}")
     suspend fun fetchPokemonByRegionId(@Path("id") id:Int): PokemonByRegionResponse
+
+    @GET("type")
+    suspend fun fetchPokemonTypes(): PokemonListBaseResponse<PokemonGenericResponse>
 
    /* @GET("pokemon/{id}")
     suspend fun fetchPokemonDetailById(@Path("id") id:Int): PokemonDetailResponse
