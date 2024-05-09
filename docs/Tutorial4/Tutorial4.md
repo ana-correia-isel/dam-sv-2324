@@ -644,11 +644,6 @@ The **response?.results?.map { ... }** maps the list of results from the API res
 * val regionId = regexToGetId.find(it.url!!)?.value extracts the ID from the URL of each region using the regular expression pattern.
 * _regions.postValue(regionsList) updates the _regions LiveData with the list of PokemonRegion objects. The postValue function is used because the code is running on a background thread.
 
-### Third Challenge - Start using API in PokemonListActivity and PokemonDetailActivity
-
-Obtains the list of Pokémon for the selected region and retrieves the selected Pokémon detail using the Pokedex API.
-
-
 ## Data Layer
 
 The data layer is the place where the app needs to deal with API and third-party libraries.
@@ -900,7 +895,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
 
 With these changes, the app will only fetch the regions from the API if they do not exist in the database.
 
-## Four Challenge - Add the Pokémon List to the database and only fetch Pokémon from the API if they do not exist in the database.
+## Third Challenge - Add the Pokémon List to the database and only fetch Pokémon from the API if they do not exist in the database.
 
 > Note
 > You need to change Pokemon object to create a relationship with Pokemon region
